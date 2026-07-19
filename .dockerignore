@@ -1,0 +1,31 @@
+# Ignore node_modules (prevents copying local dependencies)
+node_modules
+**/node_modules
+
+# Ignore build outputs (dist, build, coverage)
+dist
+**/dist
+build
+**/build
+coverage
+**/coverage
+
+# Ignore log files
+*.log
+logs
+**/*.log
+
+# Ignore local environment variables and configurations
+.env
+.env.*
+**/.env
+**/.env.*
+
+# Ignore version control and IDE configuration files
+.git
+.gitignore
+.dockerignore
+.vscode
+.idea
+.DS_Store
+Thumbs.db
