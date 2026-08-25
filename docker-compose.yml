@@ -4,19 +4,47 @@ services:
     build:
       context: . # Build context is the root directory
       dockerfile: Dockerfile # Use the Dockerfile we just created in the root
-    
+
     # Name of the container when running
     container_name: gamified-habbit-tracker-backend
-    
+
+    env_file:
+      - .env
+
     # Port mapping: "host_port:container_port"
     # This exposes port 3000 of the container onto port 3000 of your local machine.
     ports:
       - "3000:3000"
-    
+
     # Environment variables injected into the container
     environment:
       - PORT=3000
       - NODE_ENV=development
-    
+      - DATABASE_URL=${DATABASE_URL_DOCKER}
+
+    command: sh -c "pnpm dlx prisma migrate deploy && node dist/src/main"
+
+    depends_on:
+      db:
+        condition: service_healthy
+
     # Restart policy: always restart the container if it stops/crashes
     restart: unless-stopped
+  db:
+    image: mariadb:latest
+    container_name: gamified-habbit-tracker-mysql
+    env_file: .env
+    environment:
+      - MYSQL_ROOT_PASSWORD=${MYSQL_ROOT_PASSWORD}
+      - MYSQL_PASSWORD=${MYSQL_PASSWORD}
+      - MYSQL_USER=${MYSQL_USER}
+      - MYSQL_DATABASE=${MYSQL_DATABASE}
+    ports:
+      - "3307:3306"
+    volumes:
+      - ./my-init-scripts:/docker-entrypoint-initdb.d
+    healthcheck:
+      test: ["CMD-SHELL", "mariadb-admin ping -u root -p$MYSQL_ROOT_PASSWORD || exit 1"]
+      interval: 3s
+      timeout: 3s
+      retries: 10

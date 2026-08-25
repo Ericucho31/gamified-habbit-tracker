@@ -23,7 +23,8 @@ RUN pnpm install --frozen-lockfile
 # Copy the rest of the backend source files into the container
 COPY backend/ /app/backend/
 
-# Build the NestJS app (compiles TypeScript to JavaScript in the 'dist' folder)
+# Generate Prisma Client and Build NestJS app
+RUN pnpm dlx prisma generate
 RUN pnpm run build
 
 
@@ -37,12 +38,15 @@ WORKDIR /app/backend
 # Install pnpm in the final image to restore production dependencies
 RUN npm install -g pnpm
 
-# Copy package configurations and the built folder ('dist') from the builder stage
+# Copy package configurations, prisma schemas, and built folder ('dist') from builder
+COPY --from=builder /app/backend/prisma ./prisma
+COPY --from=builder /app/backend/prisma.config.ts ./prisma.config.ts
 COPY --from=builder /app/backend/package.json /app/backend/pnpm-lock.yaml* ./
 COPY --from=builder /app/backend/dist ./dist
 
-# Install only production dependencies (this excludes devDependencies like typescript, jest, nest CLI, etc.)
+# Install production dependencies and generate standard @prisma/client
 RUN pnpm install --prod --frozen-lockfile
+RUN pnpm dlx prisma generate
 
 # Document that the container will listen on port 3000
 EXPOSE 3000
@@ -51,5 +55,4 @@ EXPOSE 3000
 ENV PORT=3000
 ENV NODE_ENV=production
 
-# The command that starts our application
-CMD ["node", "dist/main"]
+CMD ["sh", "-c", "pnpm dlx prisma migrate deploy && node dist/src/main"]
