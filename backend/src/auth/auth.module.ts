@@ -4,6 +4,8 @@ import { RegisterUserUseCase } from './application/use-cases/RegisterUserUseCase
 import { GetUserByIdUseCase } from './application/use-cases/GetUserByIdUseCase';
 import { IUserRepository } from './application/interfaces/IUserRepository';
 import { PrismaUserRepository } from './infrastructure/persistence/PrismaUserRepository';
+import { PasswordService } from './application/common/PasswordService';
+import { LoginUseCase } from './application/use-cases/LoginUserUseCase';
 
 @Module({
   controllers: [UserController],
@@ -14,7 +16,9 @@ import { PrismaUserRepository } from './infrastructure/persistence/PrismaUserRep
     },
     RegisterUserUseCase,
     GetUserByIdUseCase,
+    PasswordService,
+    LoginUseCase
   ],
   exports: [IUserRepository],
 })
-export class AuthModule {}
+export class AuthModule { }

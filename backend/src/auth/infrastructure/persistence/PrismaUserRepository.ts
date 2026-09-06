@@ -5,11 +5,17 @@ import { User } from '../../../generated/prisma';
 
 @Injectable()
 export class PrismaUserRepository implements IUserRepository {
-  constructor(private readonly prisma: PrismaService) {}
+  constructor(private readonly prisma: PrismaService) { }
 
   async findById(id: string): Promise<User | null> {
     return this.prisma.user.findUnique({
       where: { id },
+    });
+  }
+
+  async findByCredentials(email: string, password: string): Promise<User | null> {
+    return this.prisma.user.findUnique({
+      where: { email, password },
     });
   }
 

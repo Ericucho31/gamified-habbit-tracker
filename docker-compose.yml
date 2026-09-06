@@ -22,7 +22,7 @@ services:
       - NODE_ENV=development
       - DATABASE_URL=${DATABASE_URL_DOCKER}
 
-    command: sh -c "pnpm dlx prisma migrate deploy && node dist/src/main"
+    command: sh -c "pnpm exec prisma migrate deploy && node dist/src/main"
 
     depends_on:
       db:
